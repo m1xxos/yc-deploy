@@ -9,8 +9,8 @@ terraform {
     endpoints = {
       s3 = "https://storage.yandexcloud.net"
     }
-    region     = "ru-central1"
-    key        = "ус-deploy.tfstate"
+    region = "ru-central1"
+    key    = "ус-deploy.tfstate"
 
     skip_region_validation      = true
     skip_credentials_validation = true
@@ -24,5 +24,5 @@ provider "yandex" {
   zone      = "ru-central1-d"
   token     = var.token
   folder_id = var.folder_id
-  cloud_id = var.cloud_id
+  cloud_id  = var.cloud_id
 }
