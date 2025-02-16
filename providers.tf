@@ -24,4 +24,5 @@ provider "yandex" {
   zone      = "ru-central1-d"
   token     = var.token
   folder_id = var.folder_id
+  cloud_id = var.cloud_id
 }
