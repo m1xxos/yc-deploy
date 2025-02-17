@@ -3,6 +3,10 @@ terraform {
     yandex = {
       source = "yandex-cloud/yandex"
     }
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "4.49.1"
+    }
   }
   required_version = ">= 0.13"
   backend "s3" {
@@ -32,4 +36,8 @@ provider "kubernetes" {
   host                   = data.yandex_kubernetes_cluster.kube-infra.master.0.external_v4_endpoint
   cluster_ca_certificate = data.yandex_kubernetes_cluster.kube-infra.master.0.cluster_ca_certificate
   token                  = data.yandex_client_config.client.iam_token
+}
+
+provider "cloudflare" {
+  api_token = var.cloudflare_api_token
 }
