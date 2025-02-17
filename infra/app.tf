@@ -19,6 +19,10 @@ resource "kubernetes_manifest" "httpbin-ingress" {
       ingress.alb.yc.io/group-name: infra-alb
       ingress.alb.yc.io/security-groups: ${yandex_vpc_security_group.yc-security-group.id}
   spec:
+    tls:
+      - hosts:
+          - "httpbin.infra.m1xxos.me"
+        secretName: yc-certmgr-cert-id-${yandex_cm_certificate.kube-infra.id}
     rules:
     - host: httpbin.infra.m1xxos.me
       http:
