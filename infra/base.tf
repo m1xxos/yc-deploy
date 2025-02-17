@@ -78,3 +78,14 @@ resource "yandex_vpc_security_group" "yc-security-group" {
     v4_cidr_blocks = ["10.0.0.0/8", "192.168.0.0/16", "172.16.0.0/12"]
   }
 }
+
+resource "yandex_vpc_address" "infra-alb" {
+  name = "infra-alb"
+  labels = {
+    "reserved" = true
+  }
+
+  external_ipv4_address {
+    zone_id = "ru-central1-d"
+  }
+}
