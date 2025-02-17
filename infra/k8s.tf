@@ -63,3 +63,9 @@ resource "yandex_kubernetes_node_group" "group-1" {
     }
   }
 }
+
+data "yandex_client_config" "client" {}
+
+data "yandex_kubernetes_cluster" "kube-infra" {
+  name = yandex_kubernetes_cluster.kube-infra.name
+}

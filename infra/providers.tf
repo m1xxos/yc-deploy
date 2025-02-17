@@ -26,3 +26,10 @@ provider "yandex" {
   folder_id = var.folder_id
   cloud_id  = var.cloud_id
 }
+
+provider "kubernetes" {
+
+  host                   = data.yandex_kubernetes_cluster.kubernetes.master.0.external_v4_endpoint
+  cluster_ca_certificate = data.yandex_kubernetes_cluster.kubernetes.master.0.cluster_ca_certificate
+  token                  = data.yandex_client_config.client.iam_token
+}
