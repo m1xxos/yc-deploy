@@ -9,6 +9,14 @@ provider "registry.terraform.io/cloudflare/cloudflare" {
   ]
 }
 
+provider "registry.terraform.io/hashicorp/helm" {
+  version     = "3.0.0-pre1"
+  constraints = "3.0.0-pre1"
+  hashes = [
+    "h1:z/Vpqzy+UpzzWXhH6FDg22cGQedvkwiiC+4fTHJ08I4=",
+  ]
+}
+
 provider "registry.terraform.io/hashicorp/kubernetes" {
   version = "2.35.1"
   hashes = [
