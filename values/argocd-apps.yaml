@@ -1,0 +1,17 @@
+applications:
+  apps:
+    namespace: argocd
+    project: default
+    sources:
+    - repoURL: https://github.com/m1xxos/yc-deploy.git
+      path: charts/apps
+      helm: null
+      valueFiles:
+      - /values/apps.yaml
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: argocd
+    syncPolicy:
+      automated:
+        prune: false
+        selfHeal: true
