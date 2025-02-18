@@ -1,0 +1,34 @@
+# Создайте неймспейс для контроллера
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: yc-alb-ingress
+  annotations:
+    # С помощью этого параметра укажите порядок создания
+    argocd.argoproj.io/sync-wave: "-1" 
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: yc-alb-ingress
+  # Обратите внимание на namespace – он должен быть argocd
+  namespace: argocd
+spec:
+  destination:
+    # А вот тут уже неймспейс, куда будет устанавливаться сам чарт
+    namespace: yc-alb-ingress
+    server: {{ .Values.spec.destination.server }}
+  project: default
+  source:
+    # Укажите путь до ранее скачанного чарта
+    path: charts/yc-alb-ingress
+    repoURL: {{ .Values.spec.source.repoURL }}
+    targetRevision: {{ .Values.spec.source.targetRevision }}
+    # Обратите внимание, что путь до зашифрованных
+    # values не нужно указывать в новом формате и путь указывается относительно чарта
+    # secrets+age-import:///<key-volume-mount>/<key-name>.txt?path/to/the/encrypted/secrets.yaml>
+    helm:
+      valueFiles:
+        - secrets+age-import:///helm-secrets-private-keys/key.txt?alb.yaml
+  syncPolicy:
+    automated: {}
