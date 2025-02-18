@@ -1,4 +1,6 @@
 sa-key.json
+key.txt
+*.dec
 # Local .terraform directories
 **/.terraform/*
 
