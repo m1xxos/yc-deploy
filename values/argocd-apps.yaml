@@ -1,17 +1,37 @@
 applications:
-  apps:
-    namespace: argocd
-    project: default
-    sources:
-    - repoURL: https://github.com/m1xxos/yc-deploy.git
-      path: charts/apps
-      helm: null
-      valueFiles:
-      - /values/apps.yaml
-    destination:
-      server: https://kubernetes.default.svc
-      namespace: argocd
-    syncPolicy:
-      automated:
-        prune: false
-        selfHeal: true
+    apps:
+        namespace: ENC[AES256_GCM,data:jYAyv63f,iv:UaQoBuhZEL34nOuzOqDw6G6uOjPoWctq2ym/0c/Fzws=,tag:/ccJIBx8ZX5l2+ed3xFOew==,type:str]
+        project: ENC[AES256_GCM,data:wb2YVAnrpA==,iv:B+ei2O/FjFBIYjSP9JAJod3xULEA4M7CcVBLyvTd3Ps=,tag:Jytv+n5VjMbb5otcFPEJrg==,type:str]
+        sources:
+            - repoURL: ENC[AES256_GCM,data:hAOhx55d60nLQA1JC5bD4gdd6pUCSTFW+cRlnJR+R6FyplqW/JfR,iv:iLE32tnQQ9OV+Gk1DAJWlnyTxDkhkaaU7YAO6kh0CfU=,tag:o54Mup0a2rD5JAUs+uM8kA==,type:str]
+              path: ENC[AES256_GCM,data:qLDDQNSpqUMsnvA=,iv:XzzgVPKuY7gpUJwTmE2+hpO19ABbWUOxhLUKJ0F1GD0=,tag:xU5F8oUjxW1eAGYCB/F8NQ==,type:str]
+              helm: null
+              valueFiles:
+                - ENC[AES256_GCM,data:NAkT4qtW038PXea6B2aZwyQ=,iv:7ZJcfqvW89wJj0JW25WK/h5FLHa+8T04uF4BZIEcq/k=,tag:lgbEz+OtMdNTg7frOjdAnQ==,type:str]
+        destination:
+            server: ENC[AES256_GCM,data:MZQkd9wfz6mlTKk26WP+W3TSlVRGqUkKzSIzrJnc,iv:cUMYpAdnhlmCjm4vEiwWbEHihzYnZXIvZjgnE3apWNA=,tag:qqhEe37SurbaKr0l0UiG4A==,type:str]
+            namespace: ENC[AES256_GCM,data:3iUoMUZo,iv:cS2OU0w84hwod64wLBUaKh/FYLAeZjRypZ1sR4sCJKI=,tag:0nBImE7xT9lbV6aucrQCMg==,type:str]
+        syncPolicy:
+            automated:
+                prune: ENC[AES256_GCM,data:uB5EiKU=,iv:Rr/vGbTXehtgJ+SLwJPrhlYwAhEX4hZLWxUeNJFGaHE=,tag:+iB54sMp1V3sjBJAh++NxQ==,type:bool]
+                selfHeal: ENC[AES256_GCM,data:lgnNqQ==,iv:F9ZPIfpd0jDWM48yVtW6MNvFl+BR2qBSNsfTSAIxgI8=,tag:LIMwM9tWvZc8zn0VkBQNDA==,type:bool]
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age109xuu84jcsltq98skgwc5x7anmwhwgajfxcjrxluqm5j7rkthe2qtu0k9z
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA1eEljQTZkSkRNQlFyM3Z1
+            MkxKQUtzcUxMZEwydmFYWGNZZ3FVZ0FRVGhRCk5Xcmx0QlZCOHZ6WVROeWhvZVUy
+            R1QweUgrT2lLWHZJYWl2d045SEN4bGcKLS0tIFBRNTNJZ0V3VEEyd0lscktvYlRV
+            bG5vYXZZZDR4VFdCVFlyNWZiUnk0SmsKa9Av1oNrL/oT45D69N0Lvwp7KQxGwosV
+            aLomkvGZwCjxWsv5eOJwNfaQTHEjiDHqdkeohzGJ12y3MnIc8MUEKQ==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2025-02-18T18:57:02Z"
+    mac: ENC[AES256_GCM,data:487RNgUQyqDqAaQHgd4yHXGqwtybeSSKALtdIQOcxM6Yd5TPpzMj3rbNi2DYSgtFoxQtLO514qmiYLq6JCvLEyHj5LH4z+uj1HSSDU+rWObhegt7gt4JbiGS+6MOxqUQiUVEgsfQCqU39O4BJNUJE2VzVeQS1JnVwJsqR/Yw/dM=,iv:ulbJqvp+SXfjgp4TfyMbEA/lhLm2ZiRk7zyz/cpyBO4=,tag:afsY6l7zExeh4jg/Ke5OxA==,type:str]
+    pgp: []
+    unencrypted_suffix: _unencrypted
+    version: 3.9.0
