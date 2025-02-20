@@ -6,6 +6,7 @@ resource "helm_release" "argocd" {
   create_namespace = true
   version          = "7.3.11-2"
   values           = [file("./manifests/argocd.yaml.dec")]
+  wait             = true
 }
 
 resource "kubernetes_secret" "helm-secrets-private-keys" {
