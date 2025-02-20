@@ -29,6 +29,6 @@ spec:
     # secrets+age-import:///<key-volume-mount>/<key-name>.txt?path/to/the/encrypted/secrets.yaml>
     helm:
       valueFiles:
-        - secrets+age-import-kubernetes://argocd/helm-secrets-private-keys#key.txt?secrets.yaml
+        - secrets+age-import://argocd/helm-secrets-private-keys#key.txt?secrets.yaml
   syncPolicy:
     automated: {}
