@@ -4,7 +4,7 @@ resource "helm_release" "argocd" {
   repository       = "oci://cr.yandex/yc-marketplace/yandex-cloud/argo/chart/"
   chart            = "argo-cd"
   create_namespace = true
-  version          = "5.46.8-6"
+  version          = "7.3.11-2"
   values           = [file("./manifests/argocd.yaml.dec")]
 }
 
