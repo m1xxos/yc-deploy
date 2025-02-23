@@ -61,5 +61,5 @@ provider "helm" {
 provider "argocd" {
   port_forward = true
   username     = "admin"
-  password   = var.argo_password
+  password     = var.argo_password
 }

@@ -20,6 +20,7 @@ resource "kubernetes_secret" "helm-secrets-private-keys" {
 }
 
 resource "argocd_application" "app_of_apps" {
+  depends_on = [ helm_release.argocd ]
   metadata {
     name      = "apps"
     namespace = "argocd"
