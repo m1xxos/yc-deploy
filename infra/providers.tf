@@ -11,6 +11,10 @@ terraform {
       source  = "hashicorp/helm"
       version = "3.0.0-pre1"
     }
+    argocd = {
+      source  = "argoproj-labs/argocd"
+      version = "7.3.1"
+    }
   }
   required_version = ">= 0.13"
   backend "s3" {
@@ -52,4 +56,10 @@ provider "helm" {
     cluster_ca_certificate = data.yandex_kubernetes_cluster.kube-infra.master.0.cluster_ca_certificate
     token                  = data.yandex_client_config.client.iam_token
   }
+}
+
+provider "argocd" {
+  port_forward = true
+  username     = "admin"
+  password   = var.argo_password
 }

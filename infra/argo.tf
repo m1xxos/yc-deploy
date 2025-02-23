@@ -11,7 +11,7 @@ resource "helm_release" "argocd" {
 
 resource "kubernetes_secret" "helm-secrets-private-keys" {
   metadata {
-    name = "helm-secrets-private-keys"
+    name      = "helm-secrets-private-keys"
     namespace = "argocd"
   }
   data = {

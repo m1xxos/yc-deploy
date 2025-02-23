@@ -22,3 +22,8 @@ variable "cloudflare_zone_id" {
   type      = string
   sensitive = true
 }
+
+variable "argo_password" {
+  type      = string
+  sensitive = true
+}
