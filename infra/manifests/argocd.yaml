@@ -1,109 +1,85 @@
 configs:
-    repositories:
-        infra:
-            password: ENC[AES256_GCM,data:F5YvdfNSXaDF4n4PJR/VagoK0ard0vjj0KM5qQIIYISaXLvbmy3vqmiywdGgWQ8/7zUZ+VKtRYY3MqVMTHODIwTWMiitRbkmba3H84jsdbMlQ4jzCgOmGgp2vT8a,iv:a9w4zgmWKgtCkYnAfzyYSpX3/KqhUtRL45sRqF4tOQ8=,tag:ulhKFDfbutfHwiWFq2TOBQ==,type:str]
-            project: ENC[AES256_GCM,data:NCQ+Yk918A==,iv:sH7EXfR3rzUE+QQmYp9Tfq8hil4TpVR9K8jlx+BocU4=,tag:tXsXOwamx/U6098tN4MtPw==,type:str]
-            type: ENC[AES256_GCM,data:K+8W,iv:B6OZqW5ZMNPO8vKxYU9c1xgWhlskJxLOvjOhql15DL4=,tag:hMcy4OoH/QuuDCxXwVnXfA==,type:str]
-            url: ENC[AES256_GCM,data:dh/c9E7BmkAwlZFed0XKPYqLhqRQ4fpbQzfy+Zxujd28T75MMjDg,iv:eVx34OUicnW9UyUg0bPLoiI3H7Bg0dNY6rFs20eKZP4=,tag:QLRhvHg2bVCKy9+ee71eTw==,type:str]
-            username: ENC[AES256_GCM,data:6H+EsSclBg==,iv:syONGZHayhjyT+rlsj3cFwCsxDCOubaqo3/NrrnG7LE=,tag:XlMlY4ubkrrF0CTAe859Zw==,type:str]
-        cm:
-            helm.valuesFileSchemes: ENC[AES256_GCM,data:3Fx4SGB/RSXWiUe9v6PuYt3JIGVmcGE2SDBcfMjlaT/VdR/zK/TW0AQMfjbtTiAG2oxZeaMk5Og39sGlCHhAVbi1f+qw7ITuzbi2XukPjiQewkhREAA9MCms2U7CWKP/0yqmnyKWLa4YiYV8ZfTki74lyZfuFfCEUelhWnKraXTKKjDV3Q==,iv:l63AolnBZcFHmiOQguEDYzatRCoCXMafOD7sppf9/3E=,tag:oxdh8Cq+s+6JMBOGffPllQ==,type:str]
-#ENC[AES256_GCM,data:nL3s3fT9e2HAVqadWrszmDWa2z+SfMhd7uSOzAb0jv+NhLDsr2rwe7EoR+M+ey6IhkXazimI4ltlGGAZvlADh2brOlhww9aLHDIMKNjT3TbC+0c++fsdn2AxvnPBJ4UeguRijCZV2fti,iv:TxK4PDtJfxgTmp8bbBvnJ9/DNQgM3FrCKjT9Ff1eSuo=,tag:cO2a7eZL9LMfuhy2f9o8EA==,type:comment]
+  repositories:
+    infra:
+      project: default
+      type: git
+      url: https://github.com/m1xxos/yc-deploy.git
+      username: argo-cd
+    cm:
+      helm.valuesFileSchemes: secrets+gpg-import, secrets+gpg-import-kubernetes, secrets+age-import, secrets+age-import-kubernetes, secrets, secrets+literal, https
 repoServer:
+  env:
+  - name: HELM_PLUGINS
+    value: /gitops-tools/helm-plugins/
+  - name: HELM_SECRETS_CURL_PATH
+    value: /gitops-tools/curl
+  - name: HELM_SECRETS_SOPS_PATH
+    value: /gitops-tools/sops
+  - name: HELM_SECRETS_VALS_PATH
+    value: /gitops-tools/vals
+  - name: HELM_SECRETS_KUBECTL_PATH
+    value: /gitops-tools/kubectl
+  - name: HELM_SECRETS_BACKEND
+    value: sops
+  # https://github.com/jkroepke/helm-secrets/wiki/Security-in-shared-environments
+  - name: HELM_SECRETS_VALUES_ALLOW_SYMLINKS
+    value: "false"
+  - name: HELM_SECRETS_VALUES_ALLOW_ABSOLUTE_PATH
+    value: "true"
+  - name: HELM_SECRETS_VALUES_ALLOW_PATH_TRAVERSAL
+    value: "false"
+  - name: HELM_SECRETS_WRAPPER_ENABLED
+    value: "true"
+  - name: HELM_SECRETS_DECRYPT_SECRETS_IN_TMP_DIR
+    value: "true"
+  - name: HELM_SECRETS_HELM_PATH
+    value: /usr/local/bin/helm
+  - name: SOPS_AGE_KEY_FILE # For age
+    value: /helm-secrets-private-keys/key.txt
+  volumes:
+  - name: gitops-tools
+    emptyDir: {}
+  # kubectl create secret generic helm-secrets-private-keys --from-file=key.asc=assets/gpg/private2.gpg
+  - name: helm-secrets-private-keys
+    secret:
+      secretName: helm-secrets-private-keys
+  volumeMounts:
+  - mountPath: /gitops-tools
+    name: gitops-tools
+  - mountPath: /usr/local/sbin/helm
+    subPath: helm
+    name: gitops-tools
+  - mountPath: /helm-secrets-private-keys/
+    name: helm-secrets-private-keys
+  initContainers:
+  - name: download-tools
+    image: alpine:latest
+    imagePullPolicy: IfNotPresent
+    command: [ sh, -ec ]
     env:
-        - name: ENC[AES256_GCM,data:Ahs65+M7JGSGURIz,iv:UTX6kf7xuBlFch4WIzGNIM5msMppYXGSQX40hMO/Khk=,tag:djnv9ne66zc/AoEmX3YVCQ==,type:str]
-          value: ENC[AES256_GCM,data:Qgi7cMFqreJvye6NO4ZDpPM/38r8IUFPjpOl,iv:tgoOFULK7lk/otPIYZv+GV97dh2O/wyTNExBUUCklas=,tag:4GOvTcXiz7BZP6kSnFcj7g==,type:str]
-        - name: ENC[AES256_GCM,data:KZD6qENXP+AadGBRZavark9NLY0A9A==,iv:WeEgOR36b0eeOug5EBf/ZF5+mDvAL60zgU93jLH7BKA=,tag:l836GbVPVMu4lypPDYrHIw==,type:str]
-          value: ENC[AES256_GCM,data:JplMtQH5ys7sMKX8Y7kvIVgu,iv:yk1zPwH7DyOZ5pKoLhhgpJRckAnUX3PH+9lLGX8+9Q4=,tag:/7HNOKwfPbLrtkHWsYR6Kg==,type:str]
-        - name: ENC[AES256_GCM,data:QiRbpxlpV2/DmibPP7hSKExZCD8GxQ==,iv:akgtQrCgKdFODBV+65Mr0aO45dyYvHy9Ju7cHLRLh50=,tag:rivzEc48hBAVYU6feToBWg==,type:str]
-          value: ENC[AES256_GCM,data:KhRGzA8W5GUzOK1e3My0rUpr,iv:eMdjkeFXb2xrFchkNDyPySUvJVNmNjD8MvTpClA26u4=,tag:Mh7NeoNN8Rc65ne9apgKsA==,type:str]
-        - name: ENC[AES256_GCM,data:N9/8Gfia7UZTuyWX44XphcLS7IfQrw==,iv:C5jw8Ex4ApLh4HHk8yHCTVRGDPeUdDBZEOwA3oyRlK4=,tag:PQZyenUgRV0qqFOpI8evZw==,type:str]
-          value: ENC[AES256_GCM,data:dA3JMjiOS22TqLk9kKa8J5MQ,iv:EJdf9J6RtrZsikI9OR0JgC2W7XEiLIGa1z4tgmbFX/s=,tag:TVXyo91gJTnNqwwbEh55HQ==,type:str]
-        - name: ENC[AES256_GCM,data:WpnVIzr8OfKymRf+iWT9wQ5zQhQwLFZHFA==,iv:l1/9yqonSzSu3nIFdXIHc8AyagmeKjpT+AtT6x7rwyU=,tag:/UyjaY2xVG+XISx33KLL5g==,type:str]
-          value: ENC[AES256_GCM,data:j7IZ8XcCBy3KOYeGPvunfeQqEoSn,iv:JcncmZ3cp7onRuaFO/pjyI9fj9NbRZ5RHlADZHWnQBE=,tag:pZFVKihiBIfBLTJQok6uTg==,type:str]
-        - name: ENC[AES256_GCM,data:1nlq6gfHenL+stLzBtrC65gEYKo=,iv:XSqNKbeOWPOoNebC/hdN6hBlpc2CAMJvi7FXUYb6pqI=,tag:4KK5GDo79yDe/IqccVfTIw==,type:str]
-          value: ENC[AES256_GCM,data:oOh09w==,iv:xARX9vgK9QT2pe6Na62HO4fcSdNnxybUiiH5am2RnQ4=,tag:dHBoui5zhcaDRs8GAZFxYw==,type:str]
-        - ENC[AES256_GCM,data:/ycimMz2ey2fleG7J23mQgphp9pkoP+R552UJeQJiZgZ1tgiITWR/dwHXUhdC8k+jdbKHth0WpGCfo8VDgSBPrAdgXdc6eDcKfe2Y2Ns,iv:+7/OubMj+ZiJ3uJn3ZAwqOTsiWbWUyJ4lblZn4FZmEw=,tag:sYN657cwVubALIWfYzlopg==,type:comment]
-        - name: ENC[AES256_GCM,data:MxJL9brfFYvo4COLyNhuMbbLpaODRfbmvnnnCxUFNZXfgQ==,iv:fJ39njRMku4akUN1smUTdE7qGiF2Lus259QwP2qNmDU=,tag:HVzJKa9B0cOhfscvlLWVKw==,type:str]
-          value: ENC[AES256_GCM,data:O0jdUSs=,iv:q8fIgrMghOZQ7n9D3DYoAdw0JCGdP5P6H2K+F1LFTsk=,tag:hT+5r8m5XPWRAWoqPUk3mA==,type:str]
-        - name: ENC[AES256_GCM,data:H0Tk3JWd7RSUKUX/p+fzslAoz/vwAFbU5vOFE1WAzyXZmO1wXEP2,iv:Qc/HGngbowAmM/2AM+5baQIQG6UgyDdhKpXOf1j/1BE=,tag:XC5dCbaHSHA2XipZjTLIHA==,type:str]
-          value: ENC[AES256_GCM,data:po3L8g==,iv:NafL2IDc3SJ2MNV/HSZMaa3/0EiyKoKYrb63w3lh9Xc=,tag:IVcXuB+smrZstfFaRPmRLQ==,type:str]
-        - name: ENC[AES256_GCM,data:WDSgsvVFEIp6UsqfQssP0ThRZmQUE0RpNz7VkNxqAdRzbpa8Wrxciw==,iv:pXr6oGmpyFNpwr0oxrRYQMC52zC+7T1lJQVYPUbKAPo=,tag:I87eiUN+X7t7Ibcl8xSQlg==,type:str]
-          value: ENC[AES256_GCM,data:n2oN9t8=,iv:DAE+AITo8DzmmK52kht1s6mMMeh0lyb/Ea3kElURmIQ=,tag:HxxL03EFmkX2HiNSxJJT6A==,type:str]
-        - name: ENC[AES256_GCM,data:3DoJTGs2UNrJ8WgLzI5EwIj4RQfFPxTBNRNJrA==,iv:aXxDA1os5CTjNSWhxAiTFBvTWF1gr3tcHbQq5hCrOtE=,tag:Rvm1ghRZaGme1Ju5he5cDg==,type:str]
-          value: ENC[AES256_GCM,data:0SccOA==,iv:UR7Qa5RVf5DrMThyumlLoiuXaca0bU/8SDr9awdhzAc=,tag:zGPS5KTMphMQ0cDmP/cDAQ==,type:str]
-        - name: ENC[AES256_GCM,data:yWdxORf79yDeMH0BXtJgEsc35c/2+rolXf8PiPtwkswQF83iQr6m,iv:EJ3FoV5TybIBDHVjcaZlqS2cxIOgveN/fnLpKaqyGOs=,tag:tB+Zwu1Lw3XG5lhxTD0lqQ==,type:str]
-          value: ENC[AES256_GCM,data:TzVHVQ==,iv:4GASJrVR33MR6Z3bVRoTALdRg1amlMwKHSIJUuEHzNo=,tag:xJ/1XHQ6eLkkMyVNfPPtJA==,type:str]
-        - name: ENC[AES256_GCM,data:o5cqKrT47teYzqizh2axoAWLEGRIWA==,iv:NaRNIJu9PpnC1kK6hQh03lbzZfqoce6vOdoJaYC9aqc=,tag:/+Vno9NMabw40R9LybzeaA==,type:str]
-          value: ENC[AES256_GCM,data:vF3uenUkkeVeNsmggLatdBWXCw==,iv:xebQm9/c7r4iucFPeSibddtU8sA+zG6UZXZrauzJiuM=,tag:jNiWgKseKX3DgtuvGTAKKw==,type:str]
-        #ENC[AES256_GCM,data:JbJQL/SQASg=,iv:7CJ2pxSWT+g7DjDY7TreH/YnoX379iTOmI2bB5lwens=,tag:DPE1GscQTgY4rLUsihhTTg==,type:comment]
-        - name: ENC[AES256_GCM,data:n4OdUP8ycpyl8y2JRygpOfs=,iv:0/dP6WIh9Ho673qg5j2AVPd6LKaN/z2sTYbeMNUa884=,tag:z5RU6p4K62SnYrU2RSTQ3w==,type:str]
-          value: ENC[AES256_GCM,data:FYqVG1iTam7tGr/Oe3+1alZ3Txt8fBhrM5M4fknv5l/nzg==,iv:XGwryc5Kaxu11ORXd1gnEZp1uakhtZXCXaolV9Oj5vA=,tag:EL8I2mBwiiMzvaBBTCP1ww==,type:str]
-    volumes:
-        - name: ENC[AES256_GCM,data:jp9pgEwENUpqt++N,iv:2JFUybrgQjpTfvjGZTzn+y9pgRFD+tTNup61hAZAfsY=,tag:4yeUruhZh3AWpEUBbeFgvA==,type:str]
-          emptyDir: {}
-        - ENC[AES256_GCM,data:nWZ9Lti4RYNj6JycbfmFUn0e1n/z5EEHzuZXW158i8jORugrMpukR4ugR5wbTDjCQXHJGXMhIOudQqKupI0XOi4yvp1ZHQJYVEQHtdGj0mqKZkbqihBkzpy6TW7dnS4A4mNx5Q==,iv:zx/G8P0rZREx4nNFRKrqYJ0plTXShVvK/umI6Nblhk8=,tag:9PkR/9LcwILJI65Ri2FXkg==,type:comment]
-        - name: ENC[AES256_GCM,data:9pERFmdK7IXvaq8kz0I4czK9rTKlXXkydQ==,iv:eQsCIMas2j6SLNkx4V2HPa7RY9G2DV3EvuSIdce4YzM=,tag:A6WwqWMR6ZL5ljJEGowB2g==,type:str]
-          secret:
-            secretName: ENC[AES256_GCM,data:E8iC0UZIG8FZkBn2hD3a7d0wAu0sESSOeg==,iv:g6HgOqQfNxKtrJ7bfSIg1eeK3wqULj6oMp/N62x6BAY=,tag:h0YnEiQpfttr+MkQe5n0Lg==,type:str]
-    volumeMounts:
-        - mountPath: ENC[AES256_GCM,data:NkwnUAQNtftz3O9fPA==,iv:4SKybPdiAvBA9DbcciKNHPsrWMSDKBG9I3q9gK1DTBw=,tag:B9WtaCyETdrFYENBcfo52Q==,type:str]
-          name: ENC[AES256_GCM,data:gp+2hm3oCdTA256K,iv:5tmJX7j3gDsmunT6jYpOMugJtSXiLY8nuklx+nKLeRE=,tag:0mSEHSXy4RrCmbFd/CXLiA==,type:str]
-        - mountPath: ENC[AES256_GCM,data:XkGbjryOhMxIidXnc1cQqWRYYEc=,iv:HIAFXfBAXPYHrzER2MCfbeK4/XVI3y7XP6150sSmibI=,tag:j7T2UdolwY45AS19EqqnYA==,type:str]
-          subPath: ENC[AES256_GCM,data:gBzZzw==,iv:ZZ9FCsMnwM0bxTB9wQbV3gU0iLLZd8TCVCzJQ2oglYQ=,tag:2I+5VCBFRda0K8mKTPgXHg==,type:str]
-          name: ENC[AES256_GCM,data:e8mW/DzVheYvf1Ff,iv:L3+ETwoscBjY7RScwnisJ5CqfRbLGcFCvQ5COvUJHgk=,tag:rlR0t8QKz/pTNtrZQDCMug==,type:str]
-        - mountPath: ENC[AES256_GCM,data:xu2akNT+foAWL4lhNfAAXwU2hc8ps/Ev0ahv,iv:/Yi6MgT+NCjPI88+9DMKdeAoFrdz70K/XqdHciJE87s=,tag:h8dGzXc77FK6Eedm7hoAlQ==,type:str]
-          name: ENC[AES256_GCM,data:ZbIZx4QuvIlVrT47ZXie9quhxWtLATrdbA==,iv:4H1S5SQYC7WJ8vySmk96eVN5erHwmmDtaH8hEHbbhzA=,tag:XbmUTKzj+h1IRK/FPVQrEQ==,type:str]
-    initContainers:
-        - name: ENC[AES256_GCM,data:0N8qqLbyKTJc9+4aGq0=,iv:PbRW8+lCtTdyycHC2ew5VKbq/iIrCh5h12zSJPG/PsU=,tag:3On3tUFgqEvE0D41P40epQ==,type:str]
-          image: ENC[AES256_GCM,data:FAdl61waUDX1EOKoPQ==,iv:x1yAaL6sZjmpI2JdC6cgbK11EHddpa18DyYaoFUHv0M=,tag:m87nsoT0WqApuCSI0pYvWA==,type:str]
-          imagePullPolicy: ENC[AES256_GCM,data:R8fb/FEQaaiEAucT,iv:WfYs08qpfksJI6c49ZjBcm6yDanOcQ0HfIQ2ejT5WGs=,tag:wBrkFmOlwz+FvDCcL0MrSg==,type:str]
-          command:
-            - ENC[AES256_GCM,data:7Ww=,iv:tB/ko7aPiDPodpMVR/Zs7moCIwINxwGD6QJXhr+VYIc=,tag:8TnflsCgpf0YUr33gED1Ew==,type:str]
-            - ENC[AES256_GCM,data:s8o3,iv:SqggTIK3fxSLMs8XPu9cTwvgOiC0VCnMgRei6KMJeFc=,tag:VDIPzmFXYqW4FUTlNR98xg==,type:str]
-          env:
-            - name: ENC[AES256_GCM,data:ZBNpButAkWaY6+eYqQlxAz4b6xs=,iv:iVSnepoCu6odGLXRztvBBv2GpUrZ5v6LFimcRrMFhXE=,tag:JeJknTbVC20kRoQICMZfpg==,type:str]
-              value: ENC[AES256_GCM,data:DovNX7Q=,iv:l6POH4q1UTGvDAhVN899pGYLBRfHs5gXN/CWvdHUgBE=,tag:0ZEcIOKMxlQQVf9Fji4t0Q==,type:str]
-            - name: ENC[AES256_GCM,data:esWrUPnQjabACHfqwC8R,iv:k3gGr03O4DO71D/6rYAwsI17FxTXmmTT7VNTLRmyKSM=,tag:ldY2Dah8rvSmAMrUVtOL6w==,type:str]
-              value: ENC[AES256_GCM,data:zfe0qNlJ,iv:vuddP57YNF7XCH3venZuXyxC29Lxl42FKz+LETM6EfQ=,tag:UuLOjuibQ4Fya3ui7dNj3g==,type:str]
-            - name: ENC[AES256_GCM,data:mIJ27nrns0MqrMUN,iv:pfkWRJ0Ve90KStBqrFbtnHNiDEjg8ssMaj04JR8OUFo=,tag:9nskenFG2kTD1wa3/ZSklQ==,type:str]
-              value: ENC[AES256_GCM,data:CqEmaRlr,iv:5csK2slpwHC0/Zw2Q7fs3Jzxr6JjRgEKLgmEuOxzqig=,tag:5xuN8Egv3YbrU/Cg4tkwFw==,type:str]
-            - name: ENC[AES256_GCM,data:vC2x2yZ9xEB3QIvM,iv:Keu7+UNWVaI39In6e1MFze3RBH4qhpuV1cbCP2/LCJ0=,tag:rB6jHXskUeZtxyXb/MnPDA==,type:str]
-              value: ENC[AES256_GCM,data:87vHWHQ=,iv:UrsR4R4z7qQRkVh4qApiHASAvbQUqDDxqiYYpbcJ4Hk=,tag:5zUOkgC2x0yyKJYmFX4mKA==,type:str]
-          args:
-            - ENC[AES256_GCM,data:3aB3wd/Xc0XwPcQ4veIm70FJq1LpVWSA4UJwhMcm6jmnZvC9i436p+R/bsRMSAV6NpDsodg/3z0LbuibAPkPh29ruCSpak6x7UR5PMQUvEZXmQhZn4Gpg5VjgW52SamWtibwIupbZtEKe1+TVW6KD7GoDQhnTdCuE23Y8HPXUWpZ++g8IP3N48NzFrdRFAGkFvoSYz9iuWnVZsaYMtL9vt6PIe+tUSv6+4p9lL+TZ/xMv6vEw4s6RU0t7KLdHiqVwDaZ0zbAE0JBr86Yosl5aqoqukpNxDdLr3gwr8CrikPmXnLoFyJSOwXlPlNE/BkEWvkrGQmB0tYwfmeV79rdyjhEZKh7mrSHRPSl57pktfY7rXs0t2sdL+/GicBFSCp7CeQHTbYIKKDymv+z92HbKy1EAYiCpPtvY6OlZchLWFIcyNUyCiPlGfp0nHS9+v6uknF0F9bK+JsZttw6h6cAc450SR9rQs5vPwioMQFIreTGJKyGbGjDWAM59HI52rrYhDrO7J+1MjVJ3WU0bS8hvkbDr94PpXA92EjUOXTKVRVAP4zzGyijCELZj5EIW+H4rixu4t2Bl0qBLzslRGAEUwdED2/qPqKiMP4xe30jCpBStR+Bzl3RM9lLjPVfya8CGJPq7CLA7ESMcQNMJGWOVeJQHsQWUca/e+XjFBXNEX4MwZsQWTuifm4WRHxk3r5N5eUlCik04SivwlMNor7MeW12mTbifRlnyD4Zi1/iTxvFZ8iFk5veBr1W5iIY6MyFbxKZ0el7szQuAHl3BVFmBshtLKx4JqBNzi11ueC4BIdE7PUmtx909U9T3sPUCDfamQ0q95p7QSQDTXTLrnSwFG0hUcZQcPoOt+QvNOhywO59Xm07WVH0FjpIlKVYOeSqzOYeJ6DGQewCINQWhyeonAN4OaUOY2BXIKqOxAYVpZNOMVumW7XBvoNmXry9K4k44IpccFRYAMArsGTPZ6yIMoqwMiTojkMQbpPRypMrea7JnVp5ZKPqmP4NivSqlyozPbZ/H73ajx1Omreq4ahR4G6zk04804bZXyQl3/vqReQ5pheBPo1dByG+FSvLzKluL/BFihM5cgQ/BP+mheZlVXcJkW2ItF3DWSjxgYIqSeK4714YLaAIeIQV9awZBa5srByYLWCAAsYwNidckwbfTBdjU3mj4hBlZi44jwEfPc8+67jefUZBieB7WHiqRy45wnFMYMYP0ReFVo/CA5kzN0EPCmC0/WoUTRKCfttSHslWZ5UeSlQ/mVfs1prt14eTd/zf6vwxbTCA,iv:bo1Xpdv9/8YNDQw+Ls8i6OLMu1DlaVx4LYxOXyYNNmc=,tag:+Q74Bjt69O3NwRc/Pwldug==,type:str]
-          volumeMounts:
-            - mountPath: ENC[AES256_GCM,data:y56YlmsTclBqaQSErw==,iv:dGpGWH4GIZFZNSHUQPTnjhBpm27sQ8kaUz4ldQGyWYY=,tag:0BUUpU54ptTLn9V3l8gjQA==,type:str]
-              name: ENC[AES256_GCM,data:QdtfN9fqkAcjcSnK,iv:hLUMpbnn2gbMiT4XNE+6ApLfdGvNs5qoAJ5ATcVcWYI=,tag:flp4udsKglhoBc17j8vudA==,type:str]
-sops:
-    kms: []
-    gcp_kms: []
-    azure_kv: []
-    hc_vault: []
-    age: []
-    lastmodified: "2025-02-23T16:45:35Z"
-    mac: ENC[AES256_GCM,data:EgSJOrpqij/1LmMpeAgjaWzSDLUtXrCPzmQvhhChoiGjXszgHNTXnkWtwbEzFtk+uPJQksLarIqP2xv33EwVc6pGHgPsZgzRF58LZhO/cPFLWTibvf+26yXarrr4T5h+8bJ7HP1I6oIxj72tAeCXC8X4iYcX4fDVGW+eqdyqEXY=,iv:IbNY+E4oKcAHjSkjuEMrx/404knOhG8x/UeCLCbCCYo=,tag:KPAtq1Zah++SkxpSACsIxA==,type:str]
-    pgp:
-        - created_at: "2025-02-23T16:45:35Z"
-          enc: |-
-            -----BEGIN PGP MESSAGE-----
+    - name: HELM_SECRETS_VERSION
+      value: "4.6.2"
+    - name: KUBECTL_VERSION
+      value: "1.30.2"
+    - name: VALS_VERSION
+      value: "0.37.3"
+    - name: SOPS_VERSION
+      value: "3.9.0"
+    args:
+    - |
+      mkdir -p /gitops-tools/helm-plugins
 
-            hQIMA8RAmNnRBV4QAQ//SmMNcTbI5ZMwizZp48BkPXXMuxAEl5h2BIdibE2dOJhk
-            l2uKLi9yveTUzmQTS7dnTTchehz9/FLPC8GtdYrdFC+2rFBU1Q/CoqCE2fD/wFDU
-            oDNU/IkCPz1obFl3ilZkkdbeguBklzrHr4ghebp9KgR0XehleQdNtMrs6zP9pQCm
-            Tc7uweWflZF/8Sa23zFYZVMBbkCnnfkHloYTZjF+fC+AfM9kbzoA3nxi7oc808js
-            E1t2vMgiQuX8gEJwoqluB0xPSvvGynBKbJTk/2rCjes/qbSOSAsf8daIOy+Rc1MM
-            AoYH48PtNiDdz2jvarhcbsluhkTZQNoEkyCOU4d/696AshAwJ+yA7ojueJ+3Kr5k
-            ho1WgUzNHR166pU43AYGaEoqRj+WOrKxPXbqDyOLn0ABFr8eowZj8X5GoQnyNjVo
-            DLlinCsdQx46rYahAGOsWLe4DgguVLeUsL59Yjv/Tvd+0hX+f5gC+95FJxeXv+M0
-            VlWqFcWKVs8fOO4YTeNnb8Pg/adiBIV11Rbyjw1bG5NHtY4p24uwNHg3gm1/hqMZ
-            Oe0nufm04BZ667cHmLT0yIeOzAKhjP2svXtfO4bwKI/8oAux83n0kzbVPCe8/sYj
-            AFoHahUX7YIshAtGwyV7nPy1ouUwbHxclVImG/KtmDkT1TTLj7y273o36mWLBVfU
-            aAEJAhDZgTTaLvGYszQGSEWW5T9vcHbuPwSxZDjw8uVVhgIjl94cC9G77jmVKG0K
-            foiJNP4dLJYK4M+yv04tpOv+nDm25mxBGttftlkTG5Xvyke3GDXhuBvcD+grercb
-            kf1be1SfWu+c
-            =Atqd
-            -----END PGP MESSAGE-----
-          fp: 7E3454C24A8C22A8AC59BADCD28FF31BC62F513B
-    unencrypted_suffix: _unencrypted
-    version: 3.9.0
+      GO_ARCH=$(uname -m | sed -e 's/x86_64/amd64/')
+      wget -qO /gitops-tools/curl https://github.com/moparisthebest/static-curl/releases/latest/download/curl-${GO_ARCH}
+
+      GO_ARCH=$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/') && \
+      wget -qO /gitops-tools/kubectl https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/${GO_ARCH}/kubectl
+      wget -qO /gitops-tools/sops https://github.com/getsops/sops/releases/download/v${SOPS_VERSION}/sops-v${SOPS_VERSION}.linux.${GO_ARCH}
+      wget -qO- https://github.com/helmfile/vals/releases/download/v${VALS_VERSION}/vals_${VALS_VERSION}_linux_${GO_ARCH}.tar.gz | tar zxv -C /gitops-tools vals
+      wget -qO- https://github.com/jkroepke/helm-secrets/releases/download/v${HELM_SECRETS_VERSION}/helm-secrets.tar.gz | tar -C /gitops-tools/helm-plugins -xzf-
+
+      chmod +x /gitops-tools/*
+      cp /gitops-tools/helm-plugins/helm-secrets/scripts/wrapper/helm.sh /gitops-tools/helm
+    volumeMounts:
+    - mountPath: /gitops-tools
+      name: gitops-tools
