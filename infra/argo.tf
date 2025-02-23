@@ -18,3 +18,35 @@ resource "kubernetes_secret" "helm-secrets-private-keys" {
     "key.txt" = file("./key.txt")
   }
 }
+
+resource "argocd_application" "app_of_apps" {
+  metadata {
+    name      = "apps"
+    namespace = "argocd"
+  }
+
+  spec {
+    project = "default"
+
+    source {
+      repo_url = "https://github.com/m1xxos/yc-deploy.git"
+      path     = "charts/apps"
+
+      helm {
+        value_files = ["/values/apps.yaml"]
+      }
+    }
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "argocd"
+    }
+
+    sync_policy {
+      automated {
+        prune     = false
+        self_heal = true
+      }
+    }
+  }
+}
