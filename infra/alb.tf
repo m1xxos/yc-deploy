@@ -37,3 +37,17 @@ resource "yandex_resourcemanager_folder_iam_binding" "compute-viewer" {
     "serviceAccount:${yandex_iam_service_account.ingress-controller.id}"
   ]
 }
+
+resource "yandex_kubernetes_marketplace_helm_release" "alb" {
+  cluster_id = yandex_kubernetes_cluster.kube-infra.id
+
+  product_version = "f2e1jkau91ivrj60555s"
+  name = "yc-alb-ingress-controller-chart"
+  namespace = "yc-alb-ingress"
+
+  user_values = {
+    folderId = yandex_resourcemanager_folder.yc-deploy.id
+    clusterId = yandex_kubernetes_cluster.kube-infra.id
+    saKeySecretKey = file("../sa-key.json")
+  }
+}

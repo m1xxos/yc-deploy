@@ -1,6 +1,9 @@
 resource "yandex_resourcemanager_folder" "yc-deploy" {
   name        = "yc-deploy"
   description = "yc deploy course resources"
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "yandex_vpc_network" "default" {
