@@ -5,8 +5,8 @@ configs:
       type: git
       url: https://github.com/m1xxos/yc-deploy.git
       username: argo-cd
-    cm:
-      helm.valuesFileSchemes: secrets+gpg-import, secrets+gpg-import-kubernetes, secrets+age-import, secrets+age-import-kubernetes, secrets, secrets+literal, https
+  cm:
+    helm.valuesFileSchemes: secrets+gpg-import, secrets+gpg-import-kubernetes, secrets+age-import, secrets+age-import-kubernetes, secrets, secrets+literal, https
 repoServer:
   env:
   - name: HELM_PLUGINS
@@ -67,7 +67,7 @@ repoServer:
       value: "3.9.0"
     args:
     - |
-
+      
       mkdir -p /gitops-tools/helm-plugins
       GO_ARCH=$(uname -m | sed -e 's/x86_64/amd64/')
       wget -qO /gitops-tools/curl https://github.com/moparisthebest/static-curl/releases/latest/download/curl-${GO_ARCH}
