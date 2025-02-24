@@ -1,3 +1,11 @@
+resource "kubernetes_namespace" "argocd" {
+  metadata {
+    labels = {
+      name = "argocd"
+    }
+  }
+}
+
 resource "helm_release" "argocd" {
   name             = "argocd"
   namespace        = "argocd"
@@ -5,7 +13,7 @@ resource "helm_release" "argocd" {
   chart            = "argo-cd"
   create_namespace = true
   version          = "7.3.11-2"
-  values           = [file("./manifests/argocd.yaml.dec")]
+  values           = [file("./manifests/argocd.yaml")]
   wait             = true
 
   depends_on = [ yandex_kubernetes_node_group.group-1 ]
@@ -20,7 +28,7 @@ resource "kubernetes_secret" "helm-secrets-private-keys" {
     "key.txt" = file("./key.txt")
   }
 
-  depends_on = [ yandex_kubernetes_node_group.group-1 ]
+  depends_on = [ yandex_kubernetes_node_group.group-1, kubernetes_namespace.argocd ]
 }
 
 resource "argocd_application" "app_of_apps" {
