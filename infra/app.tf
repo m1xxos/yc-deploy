@@ -1,9 +1,11 @@
 resource "kubernetes_manifest" "httpbin" {
   manifest = yamldecode(file("./manifests/deployment.yaml"))
+  depends_on = [ yandex_kubernetes_node_group.group-1 ]
 }
 
 resource "kubernetes_manifest" "httpbin-service" {
   manifest = yamldecode(file("./manifests/service.yaml"))
+  depends_on = [ yandex_kubernetes_node_group.group-1 ]
 }
 
 resource "kubernetes_manifest" "httpbin-ingress" {
@@ -36,4 +38,5 @@ resource "kubernetes_manifest" "httpbin-ingress" {
                 number: 80
   EOT
   )
+  depends_on = [ yandex_kubernetes_node_group.group-1 ]
 }

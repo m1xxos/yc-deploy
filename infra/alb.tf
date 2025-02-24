@@ -1,5 +1,6 @@
 resource "yandex_iam_service_account" "ingress-controller" {
   name = "ingress-controller"
+  depends_on = [ yandex_resourcemanager_folder.yc-deploy ]
 }
 
 resource "yandex_resourcemanager_folder_iam_binding" "alb-editor" {
@@ -40,14 +41,15 @@ resource "yandex_resourcemanager_folder_iam_binding" "compute-viewer" {
 
 resource "yandex_kubernetes_marketplace_helm_release" "alb" {
   cluster_id = yandex_kubernetes_cluster.kube-infra.id
+  depends_on = [ yandex_kubernetes_node_group.group-1, yandex_vpc_address.infra-alb ]
 
   product_version = "f2e1jkau91ivrj60555s"
-  name = "yc-alb-ingress-controller-chart"
-  namespace = "yc-alb-ingress"
+  name            = "yc-alb-ingress-controller-chart"
+  namespace       = "yc-alb-ingress"
 
   user_values = {
-    folderId = yandex_resourcemanager_folder.yc-deploy.id
-    clusterId = yandex_kubernetes_cluster.kube-infra.id
+    folderId       = yandex_resourcemanager_folder.yc-deploy.id
+    clusterId      = yandex_kubernetes_cluster.kube-infra.id
     saKeySecretKey = file("../sa-key.json")
   }
 }

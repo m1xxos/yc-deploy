@@ -7,6 +7,10 @@ terraform {
       source  = "cloudflare/cloudflare"
       version = "4.49.1"
     }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "2.35.1"
+    }
     helm = {
       source  = "hashicorp/helm"
       version = "3.0.0-pre1"
@@ -40,7 +44,6 @@ provider "yandex" {
 }
 
 provider "kubernetes" {
-
   host                   = data.yandex_kubernetes_cluster.kube-infra.master.0.external_v4_endpoint
   cluster_ca_certificate = data.yandex_kubernetes_cluster.kube-infra.master.0.cluster_ca_certificate
   token                  = data.yandex_client_config.client.iam_token

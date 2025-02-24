@@ -13,6 +13,7 @@ resource "cloudflare_record" "infra" {
   content = yandex_vpc_address.infra-alb.external_ipv4_address[0].address
   type    = "A"
   ttl     = 300
+  depends_on = [ yandex_resourcemanager_folder.yc-deploy ]
 }
 
 resource "cloudflare_record" "acme" {

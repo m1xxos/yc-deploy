@@ -1,5 +1,5 @@
 resource "yandex_resourcemanager_folder" "yc-deploy" {
-  name        = "yc-deploy"
+  name        = "${var.environment}-yc-deploy"
   description = "yc deploy course resources"
   lifecycle {
     prevent_destroy = true
@@ -8,6 +8,10 @@ resource "yandex_resourcemanager_folder" "yc-deploy" {
 
 resource "yandex_vpc_network" "default" {
   name = "default"
+  labels = {
+    environment = var.environment
+  }
+  depends_on = [ yandex_resourcemanager_folder.yc-deploy ]
 }
 
 resource "yandex_vpc_subnet" "default-ru-central1-a" {
@@ -15,6 +19,9 @@ resource "yandex_vpc_subnet" "default-ru-central1-a" {
   v4_cidr_blocks = ["10.127.0.0/24"]
   network_id     = yandex_vpc_network.default.id
   zone           = "ru-central1-a"
+  labels = {
+    environment = var.environment
+  }
 }
 
 resource "yandex_vpc_subnet" "default-ru-central1-b" {
@@ -22,6 +29,9 @@ resource "yandex_vpc_subnet" "default-ru-central1-b" {
   v4_cidr_blocks = ["10.128.0.0/24"]
   network_id     = yandex_vpc_network.default.id
   zone           = "ru-central1-b"
+  labels = {
+    environment = var.environment
+  }
 }
 
 resource "yandex_vpc_subnet" "default-ru-central1-d" {
@@ -29,12 +39,19 @@ resource "yandex_vpc_subnet" "default-ru-central1-d" {
   v4_cidr_blocks = ["10.129.0.0/24"]
   network_id     = yandex_vpc_network.default.id
   zone           = "ru-central1-d"
+  labels = {
+    environment = var.environment
+  }
 }
 
 resource "yandex_vpc_security_group" "yc-security-group" {
   name        = "yc-security-group"
   description = "yc deploy sg"
   network_id  = yandex_vpc_network.default.id
+
+  labels = {
+    environment = var.environment
+  }
 
   ingress {
     protocol       = "TCP"
@@ -84,8 +101,10 @@ resource "yandex_vpc_security_group" "yc-security-group" {
 
 resource "yandex_vpc_address" "infra-alb" {
   name = "infra-alb"
+  depends_on = [ yandex_resourcemanager_folder.yc-deploy ]
   labels = {
-    "reserved" = true
+    "reserved"  = true
+    environment = var.environment
   }
 
   external_ipv4_address {

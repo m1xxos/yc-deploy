@@ -1,4 +1,5 @@
 resource "yandex_iam_service_account" "kube-infra" {
+  depends_on = [ yandex_resourcemanager_folder.yc-deploy ]
   name = "kube-infra"
 }
 
@@ -14,8 +15,13 @@ resource "yandex_resourcemanager_folder_iam_binding" "editor" {
 resource "yandex_kubernetes_cluster" "kube-infra" {
   name       = "kube-infra"
   network_id = yandex_vpc_network.default.id
+  depends_on = [ yandex_resourcemanager_folder.yc-deploy ]
+  labels = {
+    environment = var.environment
+  }
+
   master {
-    version = "1.29"
+    version = "1.31"
     zonal {
       subnet_id = yandex_vpc_subnet.default-ru-central1-d.id
       zone      = yandex_vpc_subnet.default-ru-central1-d.zone
@@ -33,7 +39,10 @@ resource "yandex_kubernetes_cluster" "kube-infra" {
 resource "yandex_kubernetes_node_group" "group-1" {
   name       = "group-1"
   cluster_id = yandex_kubernetes_cluster.kube-infra.id
-  version    = "1.29"
+  version    = "1.31"
+  labels = {
+    environment = var.environment
+  }
 
   instance_template {
     resources {
