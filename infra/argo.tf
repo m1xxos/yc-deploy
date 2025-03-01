@@ -43,10 +43,10 @@ resource "argocd_application" "app_of_apps" {
 
     source {
       repo_url = "https://github.com/m1xxos/yc-deploy.git"
-      path     = "charts/apps"
+      path     = "/argo-apps/charts/apps"
 
       helm {
-        value_files = ["/values/apps.yaml"]
+        value_files = ["/argo-apps/values/apps.yaml"]
       }
     }
 
